@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.name        = 'parallel-tests-report'
+  s.name        = 'parallel_tests_report'
   s.version     = '0.0.0'
   s.date        = '2020-08-17'
   s.summary     = "Generate report for parallel_tests"

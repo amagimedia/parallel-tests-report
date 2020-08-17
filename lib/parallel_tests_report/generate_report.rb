@@ -1,5 +1,7 @@
-module GenerateReport
-  def self.start
+require 'parallel_tests_report'
+
+class ParallelTestsReport::GenerateReport
+  def start
     all_examples = []
     slowest_examples = []
     failed_examples = []
