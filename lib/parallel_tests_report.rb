@@ -1,76 +1,107 @@
-module ParallelTestsReport
-  def self.start
-    all_examples = []
-    slowest_examples = []
-    failed_examples = []
-    time_exceeding_examples = []
-    rerun_failed = []
+require "rspec/core"
+require "rspec/core/formatters/base_formatter"
 
-    return if File.zero?(Rails.root.join('tmp', 'test-results', 'rspec.json'))
+class ParallelTestsReport < RSpec::Core::Formatters::BaseFormatter
+  RSpec::Core::Formatters.register self, :message, :dump_profile, :seed, :stop, :close
 
-    File.foreach(Rails.root.join('tmp', 'test-results', 'rspec.json')) do |line|
-      parallel_suite = JSON.parse(line)
-      all_examples += parallel_suite["examples"]
-      slowest_examples += parallel_suite["profile"]["examples"]
-      failed_examples += parallel_suite["examples"].select {|ex| ex["status"] == "failed" }
-      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= 300.0}
+  attr_reader :output_hash, :output
+
+  def initialize(output)
+    super
+    @output ||= output
+    if String === @output
+      #open the file given as argument in --out
+      FileUtils.mkdir_p(File.dirname(@output))
+      # overwrite previous results
+      File.open(@output, 'w'){}
+      @output = File.open(@output, 'a')
+      # close and restart in append mode
+    elsif File === @output
+      @output.close
+      @output = File.open(@output.path, 'a')
     end
+    @output_hash = {}
 
-    if slowest_examples.size > 0
-      slowest_examples = slowest_examples.sort_by do |ex|
-        -ex["run_time"]
-      end.first(20)
-    end
-
-    if slowest_examples.size > 0
-      puts "Top #{slowest_examples.size} slowest examples\n"
-      slowest_examples.each do |ex|
-        puts <<-TEXT
-  #{ex["full_description"]}
-      #{ex["run_time"]} #{"seconds"} #{ex["file_path"]} #{ex["line_number"]}
-        TEXT
-      end
-    end
-
-    if failed_examples.size > 0
-      puts "\nFailed Examples:\n"
-      failed_examples.each do |ex|
-        puts <<-TEXT
-  => #{ex["full_description"]}
-      #{ex["run_time"]} #{"seconds"} #{ex["file_path"]} #{ex["line_number"]}
-        #{ex["exception"]["message"]}
-        TEXT
-        all_examples.each do |e|
-          rerun_failed << e["file_path"].to_s if e["parallel_test_proessor"] == ex["parallel_test_proessor"] && !rerun_failed.include?(e["file_path"])
-        end
-        str = ""
-        rerun_failed.each do |e|
-          str += e + " "
-        end
-        puts <<-TEXT
-  \n\s\sIn case the failure: "#{ex["full_description"]}" is due to random ordering, run the following command to isolate the minimal set of examples that reproduce the same failures:
-    `bundle exec rspec #{str} --seed #{ex['seed']} --bisect`\n
-        TEXT
-        rerun_failed.clear
-      end
-    end
-
-    if time_exceeding_examples.length > 0
-      puts "\nExecution time is exceeding the threshold of 300 seconds for following tests:"
-      time_exceeding_examples.each do |ex|
-        puts <<-TEXT
-  => #{ex["full_description"]}: #{ex["run_time"]} #{"Seconds"}
-        TEXT
-      end
-      raise
+    if ENV['TEST_ENV_NUMBER'].to_i != 0
+      @n = ENV['TEST_ENV_NUMBER'].to_i
     else
-      puts "Runtime check Passed."
+      @n = 1
     end
+  end
 
-    if failed_examples.size > 0
-      fail_message = "Tests Failed"
-      puts "\e[31m#{fail_message}\e[0m"
-      raise
+  def message(notification)
+    (@output_hash[:messages] ||= []) << notification.message
+  end
+
+  def seed(notification)
+    return unless notification.seed_used?
+    @output_hash[:seed] = notification.seed
+  end
+
+  def close(_notification)
+    #close the file after all the processes are finished
+    @output.close if (IO === @output) & (@output != $stdout)
+  end
+
+  def stop(notification)
+    #adds to @output_hash, an array of examples which run in a particular processor
+    @output_hash[:examples] = notification.examples.map do |example|
+      format_example(example).tap do |hash|
+        e = example.exception
+        if e
+          hash[:exception] =  {
+            :class => e.class.name,
+            :message => e.message,
+            :backtrace => e.backtrace,
+          }
+        end
+      end
     end
+  end
+
+  def dump_profile(profile)
+    dump_profile_slowest_examples(profile)
+  end
+
+  def dump_profile_slowest_examples(profile)
+    #adds to @output_hash, an array of 20 slowest examples
+    lock_output do
+      @output_hash[:profile] = {}
+      @output_hash[:profile][:examples] = profile.slowest_examples.map do |example|
+        format_example(example)
+      end
+    end
+    #write the @output_hash to the file
+    output.puts @output_hash.to_json
+    output.flush
+  end
+
+protected
+  #to make a single file for all the parallel processes
+  def lock_output
+    if File === @output
+      begin
+        @output.flock File::LOCK_EX
+        yield
+      ensure
+        @output.flock File::LOCK_UN
+      end
+    else
+      yield
+    end
+  end
+
+private
+
+  def format_example(example)
+    {
+      :full_description => example.full_description,
+      :status => example.execution_result.status.to_s,
+      :file_path => example.metadata[:file_path],
+      :line_number  => example.metadata[:line_number],
+      :run_time => example.execution_result.run_time,
+      :parallel_test_proessor => @n,
+      :seed => @output_hash[:seed]
+    }
   end
 end
