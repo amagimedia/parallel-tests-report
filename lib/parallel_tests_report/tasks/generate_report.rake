@@ -5,7 +5,7 @@ namespace :generate do
 <<<<<<< HEAD
     ParallelTestsReport::GenerateReport.new.start
 =======
-    ParallelTestsReport::GenerateReport.start
->>>>>>> add gemfile and rake task
+    ParallelTestsReport::GenerateReport.new.start
+>>>>>>> add formatter
   end
 end
