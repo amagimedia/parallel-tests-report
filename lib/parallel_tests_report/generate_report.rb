@@ -1,4 +1,5 @@
 require 'parallel_tests_report'
+require 'json'
 
 class ParallelTestsReport::GenerateReport
   def start
@@ -8,9 +9,9 @@ class ParallelTestsReport::GenerateReport
     time_exceeding_examples = []
     rerun_failed = []
 
-    return if File.zero?(Rails.root.join('tmp', 'test-results', 'rspec.json'))
+    return if File.zero?('./tmp/test-results/rspec.json')
 
-    File.foreach(Rails.root.join('tmp', 'test-results', 'rspec.json')) do |line|
+    File.foreach('./tmp/test-results/rspec.json') do |line|
       parallel_suite = JSON.parse(line)
       all_examples += parallel_suite["examples"]
       slowest_examples += parallel_suite["profile"]["examples"]

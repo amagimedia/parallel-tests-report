@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-gem 'rake'
-gem 'rails', '5.2.4.3'
+gem 'rake', '~> 12.3.3'
 
 gemspec
