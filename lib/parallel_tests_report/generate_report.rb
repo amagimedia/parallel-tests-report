@@ -66,7 +66,7 @@ class ParallelTestsReport::GenerateReport
   => #{ex["full_description"]}: #{ex["run_time"]} #{"Seconds"}
         TEXT
       end
-      raise
+      exit 1
     else
       puts "Runtime check Passed."
     end
@@ -74,7 +74,7 @@ class ParallelTestsReport::GenerateReport
     if failed_examples.size > 0
       fail_message = "Tests Failed"
       puts "\e[31m#{fail_message}\e[0m"
-      raise
+      exit 1
     end
   end
 end
