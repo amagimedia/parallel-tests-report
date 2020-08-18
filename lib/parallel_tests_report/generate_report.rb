@@ -17,7 +17,7 @@ class ParallelTestsReport::GenerateReport
       all_examples += parallel_suite["examples"]
       slowest_examples += parallel_suite["profile"]["examples"]
       failed_examples += parallel_suite["examples"].select {|ex| ex["status"] == "failed" }
-      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= 0.2}
+      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= 50.0}
     end
 
     if slowest_examples.size > 0
@@ -79,7 +79,7 @@ class ParallelTestsReport::GenerateReport
           }
         }
       end
-      File.open('tmp/test-results/rspec1.xml', 'w') do |file|
+      File.open('tmp/test-resultsrspec1.xml', 'w') do |file|
         file << builder.to_xml
       end
       raise
