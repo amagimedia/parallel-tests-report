@@ -3,7 +3,11 @@ require 'json'
 require 'nokogiri'
 
 class ParallelTestsReport::GenerateReport
+<<<<<<< HEAD
   def start(time_limit = 10)
+=======
+  def start(time_limit = 300)
+>>>>>>> add time_limit
     all_examples = []
     slowest_examples = []
     failed_examples = []
@@ -70,7 +74,7 @@ class ParallelTestsReport::GenerateReport
 =======
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.root {
-          xml.message_ "Execution time is exceeding the threshold of 300 seconds for following tests:"
+          xml.message_ "Execution time is exceeding the threshold of #{time_limit} seconds for following tests:"
           xml.examples {
             time_exceeding_examples.each do |ex|
               xml.example {
