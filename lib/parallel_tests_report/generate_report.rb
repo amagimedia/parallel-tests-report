@@ -3,11 +3,7 @@ require 'json'
 require 'nokogiri'
 
 class ParallelTestsReport::GenerateReport
-<<<<<<< HEAD
   def start(time_limit = 10)
-=======
-  def start(time_limit = 300)
->>>>>>> add time_limit
     all_examples = []
     slowest_examples = []
     failed_examples = []
@@ -70,27 +66,6 @@ class ParallelTestsReport::GenerateReport
   => #{ex["full_description"]}: #{ex["run_time"]} #{"Seconds"}
         TEXT
       end
-<<<<<<< HEAD
-=======
-      builder = Nokogiri::XML::Builder.new do |xml|
-        xml.root {
-          xml.message_ "Execution time is exceeding the threshold of #{time_limit} seconds for following tests:"
-          xml.examples {
-            time_exceeding_examples.each do |ex|
-              xml.example {
-                xml.failure {
-                  xml.full_description_   ex["full_description"]
-                  xml.runtime_  "#{ex["run_time"]}" + "\sSeconds"
-                }
-              }
-            end
-          }
-        }
-      end
-      File.open('tmp/test-results/rspec1.xml', 'w') do |file|
-        file << builder.to_xml
-      end
->>>>>>> correct typo
       raise
     else
       puts "Runtime check Passed."
