@@ -17,7 +17,7 @@ class ParallelTestsReport::GenerateReport
       all_examples += parallel_suite["examples"]
       slowest_examples += parallel_suite["profile"]["examples"]
       failed_examples += parallel_suite["examples"].select {|ex| ex["status"] == "failed" }
-      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= 50.0}
+      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= 50}
     end
 
     if slowest_examples.size > 0
@@ -72,8 +72,10 @@ class ParallelTestsReport::GenerateReport
           xml.examples {
             time_exceeding_examples.each do |ex|
               xml.example {
-                xml.full_description_   ex["full_description"]
-                xml.runtime_  "#{ex["run_time"]}" + "\sSeconds"
+                xml.failure {
+                  xml.full_description_   ex["full_description"]
+                  xml.runtime_  "#{ex["run_time"]}" + "\sSeconds"
+                }
               }
             end
           }
