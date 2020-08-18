@@ -67,6 +67,8 @@ class ParallelTestsReport::GenerateReport
         TEXT
       end
       exit 1
+      raise
+>>>>>>> add xml
     else
       puts "Runtime check Passed."
     end
