@@ -107,5 +107,4 @@ module ParallelTestsReport
       }
     end
   end
->>>>>>> update lib
 end
