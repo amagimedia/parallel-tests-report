@@ -79,7 +79,7 @@ class ParallelTestsReport::GenerateReport
           }
         }
       end
-      File.open('tmp/test-resultsrspec1.xml', 'w') do |file|
+      File.open('tmp/test-results/rspec1.xml', 'w') do |file|
         file << builder.to_xml
       end
       raise
