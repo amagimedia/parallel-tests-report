@@ -14,4 +14,4 @@ To use formatter, include the following in .rspec or .rspec_parallel:
 
 To generate report, run the following:
  - `bundle exec parallel_tests_report rake generate:report <TIME_LIMIT>`
-### Note: <TIME_LIMIT> is maximum time an example can take. Default is 300 seconds.
+### Note: <TIME_LIMIT> is maximum time an example can take. Default is 10 seconds.
