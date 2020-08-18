@@ -3,11 +3,7 @@ require 'json'
 require 'nokogiri'
 
 class ParallelTestsReport::GenerateReport
-<<<<<<< HEAD
   def start(time_limit = 10)
-=======
-  def start(time_limit = 300)
->>>>>>> add time_limit
     all_examples = []
     slowest_examples = []
     failed_examples = []
