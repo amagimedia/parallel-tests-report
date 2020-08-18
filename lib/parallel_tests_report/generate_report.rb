@@ -3,7 +3,7 @@ require 'json'
 require 'nokogiri'
 
 class ParallelTestsReport::GenerateReport
-  def start
+  def start(time_limit = 10)
     all_examples = []
     slowest_examples = []
     failed_examples = []
@@ -17,7 +17,7 @@ class ParallelTestsReport::GenerateReport
       all_examples += parallel_suite["examples"]
       slowest_examples += parallel_suite["profile"]["examples"]
       failed_examples += parallel_suite["examples"].select {|ex| ex["status"] == "failed" }
-      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= 0.2}
+      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= time_limit}
     end
 
     if slowest_examples.size > 0
@@ -60,27 +60,11 @@ class ParallelTestsReport::GenerateReport
     end
 
     if time_exceeding_examples.length > 0
-      puts "\nExecution time is exceeding the threshold of 300 seconds for following tests:"
+      puts "\nExecution time is exceeding the threshold of #{time_limit} seconds for following tests:"
       time_exceeding_examples.each do |ex|
         puts <<-TEXT
   => #{ex["full_description"]}: #{ex["run_time"]} #{"Seconds"}
         TEXT
-      end
-      builder = Nokogiri::XML::Builder.new do |xml|
-        xml.root {
-          xml.message_ "Execution time is exceeding the threshold of 300 seconds for following tests:"
-          xml.examples {
-            time_exceeding_examples.each do |ex|
-              xml.example {
-                xml.full_description_   ex["full_description"]
-                xml.runtime_  "#{ex["run_time"]}" + "\sSeconds"
-              }
-            end
-          }
-        }
-      end
-      File.open('tmp/test-results/rspec1.xml', 'w') do |file|
-        file << builder.to_xml
       end
       raise
     else

@@ -9,16 +9,9 @@ Add the following to the Rakefile before load_task(In Rails application):
  - `require 'parallel_tests_report'`
 
 # Usage
-## In Rails application
-To use formatter, include the following in .rspec or .rspec_parallel:
- - `--format ParallelTestsReport::Formatter --out tmp/test-results/rspec.json`
-
-To generate report, run the following rake task:
- - `bundle exec rake generate:report`
-
-## In Non-Rails application
 To use formatter, include the following in .rspec or .rspec_parallel:
  - `--format ParallelTestsReport::Formatter --out tmp/test-results/rspec.json`
 
 To generate report, run the following:
- - `bundle exec parallel_tests_report rake generate:report`
+ - `bundle exec parallel_tests_report rake generate:report <TIME_LIMIT>`
+### Note: <TIME_LIMIT> is maximum time an example can take. Default is 10 seconds.
