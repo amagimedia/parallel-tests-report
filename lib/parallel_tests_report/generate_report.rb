@@ -3,7 +3,11 @@ require 'json'
 require 'nokogiri'
 
 class ParallelTestsReport::GenerateReport
+<<<<<<< HEAD
   def start(time_limit = 10)
+=======
+  def start(time_limit = 300)
+>>>>>>> add time_limit
     all_examples = []
     slowest_examples = []
     failed_examples = []
@@ -67,8 +71,6 @@ class ParallelTestsReport::GenerateReport
         TEXT
       end
       exit 1
-      raise
->>>>>>> add xml
     else
       puts "Runtime check Passed."
     end
