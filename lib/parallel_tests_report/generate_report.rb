@@ -8,14 +8,6 @@ class ParallelTestsReport::GenerateReport
     time_exceeding_examples = []
     rerun_failed = []
 
-class ParallelTestsReport::GenerateReport
-  def start
-    all_examples = []
-    slowest_examples = []
-    failed_examples = []
-    time_exceeding_examples = []
-    rerun_failed = []
-
     return if File.zero?(Rails.root.join('tmp', 'test-results', 'rspec.json'))
 
     File.foreach(Rails.root.join('tmp', 'test-results', 'rspec.json')) do |line|
