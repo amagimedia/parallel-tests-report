@@ -7,5 +7,6 @@ Gem::Specification.new do |s|
   s.authors     = ["Akshat Birani"]
   s.email       = 'akshat@amagi.com'
   s.homepage    = 'https://github.com/amagimedia/parallel-tests-report'
-  s.files       = Dir["lib/**/*", "README.md"]
+  s.files       = Dir["lib/**/*", "README.md", "Rakefile"]
+  s.add_dependency 'rake', '~> 12.3.3'
 end
