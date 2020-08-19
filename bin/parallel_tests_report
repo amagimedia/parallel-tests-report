@@ -11,5 +11,5 @@ if exec_type == 'rake' then
     Rake.application.init
     Rake.application.load_rakefile
     Dir.chdir(pwd)
-    Rake::Task[ARGV[1]].invoke(ARGV[2])
+    Rake::Task[ARGV[1]].invoke(ARGV[2], ARGV[3])
 end

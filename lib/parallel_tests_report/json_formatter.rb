@@ -1,6 +1,6 @@
 require 'parallel_tests_report'
 
-class ParallelTestsReport::Formatter < RSpec::Core::Formatters::BaseFormatter
+class ParallelTestsReport::JsonFormatter < RSpec::Core::Formatters::BaseFormatter
   RSpec::Core::Formatters.register self, :message, :dump_profile, :seed, :stop, :close
   attr_reader :output_hash, :output
   def initialize(output)

@@ -3,16 +3,16 @@ require 'json'
 require 'nokogiri'
 
 class ParallelTestsReport::GenerateReport
-  def start(time_limit = 10)
+  def start(time_limit, output)
     all_examples = []
     slowest_examples = []
     failed_examples = []
     time_exceeding_examples = []
     rerun_failed = []
 
-    return if File.zero?('./tmp/test-results/rspec.json')
+    return if File.zero?(output)
 
-    File.foreach('./tmp/test-results/rspec.json') do |line|
+    File.foreach(output) do |line|
       parallel_suite = JSON.parse(line)
       all_examples += parallel_suite["examples"]
       slowest_examples += parallel_suite["profile"]["examples"]
