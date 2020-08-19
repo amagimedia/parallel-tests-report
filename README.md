@@ -15,5 +15,5 @@ Add the following to the Rakefile before load_task(In Rails application):
 
 ## To generate report, run the following:
  - `bundle exec parallel_tests_report rake generate:report <TIME_LIMIT> <OUTPUT_FILE>`
-#### <TIME_LIMIT> is maximum time an example can take. Default is 10 seconds.
-#### <OUTPUT_FILE> is the same file set in .rspec or .rspec_parallel, in the --out option for the formatter. Default is 'tmp/test-results/rspec.json'
+#### Note: <TIME_LIMIT> is maximum time an example can take. Default is 10 seconds.
+#### Note: <OUTPUT_FILE> is the same file set in .rspec or .rspec_parallel, in the --out option for the formatter. Default is 'tmp/test-results/rspec.json'
