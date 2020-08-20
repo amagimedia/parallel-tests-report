@@ -17,7 +17,7 @@ class ParallelTestsReport::GenerateReport
       all_examples += parallel_suite["examples"]
       slowest_examples += parallel_suite["profile"]["examples"]
       failed_examples += parallel_suite["examples"].select {|ex| ex["status"] == "failed" }
-      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= @time_limit}
+      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= time_limit}
     end
 
     if slowest_examples.size > 0
