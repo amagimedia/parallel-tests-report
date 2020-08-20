@@ -4,7 +4,8 @@ require 'nokogiri'
 
 class ParallelTestsReport::GenerateReport
   def start(time_limit, output)
-    all_examples = []
+    @time_limit = time_limit
+    @all_examples = []
     slowest_examples = []
     failed_examples = []
     time_exceeding_examples = []
@@ -14,10 +15,10 @@ class ParallelTestsReport::GenerateReport
 
     File.foreach(output) do |line|
       parallel_suite = JSON.parse(line)
-      all_examples += parallel_suite["examples"]
+      @all_examples += parallel_suite["examples"]
       slowest_examples += parallel_suite["profile"]["examples"]
       failed_examples += parallel_suite["examples"].select {|ex| ex["status"] == "failed" }
-      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= time_limit}
+      time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= @time_limit}
     end
 
     if slowest_examples.size > 0
@@ -44,7 +45,7 @@ class ParallelTestsReport::GenerateReport
       #{ex["run_time"]} #{"seconds"} #{ex["file_path"]} #{ex["line_number"]}
         #{ex["exception"]["message"]}
         TEXT
-        all_examples.each do |e|
+        @all_examples.each do |e|
           rerun_failed << e["file_path"].to_s if e["parallel_test_proessor"] == ex["parallel_test_proessor"] && !rerun_failed.include?(e["file_path"])
         end
         str = ""
@@ -60,12 +61,13 @@ class ParallelTestsReport::GenerateReport
     end
 
     if time_exceeding_examples.length > 0
-      puts "\nExecution time is exceeding the threshold of #{time_limit} seconds for following tests:"
+      puts "\nExecution time is exceeding the threshold of #{@time_limit} seconds for following tests:"
       time_exceeding_examples.each do |ex|
         puts <<-TEXT
   => #{ex["full_description"]}: #{ex["run_time"]} #{"Seconds"}
         TEXT
       end
+      generate_xml(time_exceeding_examples)
       exit 1
     else
       puts "Runtime check Passed."
@@ -75,6 +77,25 @@ class ParallelTestsReport::GenerateReport
       fail_message = "Tests Failed"
       puts "\e[31m#{fail_message}\e[0m"
       exit 1
+    end
+  end
+
+  def generate_xml array
+    builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+      xml.testsuite("name" => "rspec", "tests" => @all_examples.length, "skipped" => 0, "failures" => array.length, "errors" => 0) {
+        xml.properties {
+          xml.property("name" => "seed", "value" => "")
+        }
+        array.each do |arr|
+          classname = "#{arr["file_path"]}".sub(%r{\.[^/]*\Z}, "").gsub("/", ".").gsub(%r{\A\.+|\.+\Z}, "")
+          xml.testcase("classname" => "#{classname}", "name" => "#{arr["full_description"]}", "file" => "#{arr["file_path"]}", "time" => "#{arr["run_time"]}") {
+            xml.failure "Execution time is exceeding the threshold of #{@time_limit} seconds"
+          }
+        end
+      }
+    end
+    File.open('tmp/test-results/rspec1.xml', 'w') do |file|
+      file << builder.to_xml
     end
   end
 end
