@@ -83,9 +83,6 @@ class ParallelTestsReport::GenerateReport
   def generate_xml array
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml.testsuite("name" => "rspec", "tests" => @all_examples.length, "skipped" => 0, "failures" => array.length, "errors" => 0) {
-        xml.properties {
-          xml.property("name" => "seed", "value" => "")
-        }
         array.each do |arr|
           classname = "#{arr["file_path"]}".sub(%r{\.[^/]*\Z}, "").gsub("/", ".").gsub(%r{\A\.+|\.+\Z}, "")
           xml.testcase("classname" => "#{classname}", "name" => "#{arr["full_description"]}", "file" => "#{arr["file_path"]}", "time" => "#{arr["run_time"]}") {
