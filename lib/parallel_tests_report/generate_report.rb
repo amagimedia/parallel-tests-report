@@ -4,8 +4,7 @@ require 'nokogiri'
 
 class ParallelTestsReport::GenerateReport
   def start(time_limit, output)
-    @time_limit = time_limit
-    @all_examples = []
+    all_examples = []
     slowest_examples = []
     failed_examples = []
     time_exceeding_examples = []
@@ -15,7 +14,7 @@ class ParallelTestsReport::GenerateReport
 
     File.foreach(output) do |line|
       parallel_suite = JSON.parse(line)
-      @all_examples += parallel_suite["examples"]
+      all_examples += parallel_suite["examples"]
       slowest_examples += parallel_suite["profile"]["examples"]
       failed_examples += parallel_suite["examples"].select {|ex| ex["status"] == "failed" }
       time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= @time_limit}
@@ -45,7 +44,7 @@ class ParallelTestsReport::GenerateReport
       #{ex["run_time"]} #{"seconds"} #{ex["file_path"]} #{ex["line_number"]}
         #{ex["exception"]["message"]}
         TEXT
-        @all_examples.each do |e|
+        all_examples.each do |e|
           rerun_failed << e["file_path"].to_s if e["parallel_test_proessor"] == ex["parallel_test_proessor"] && !rerun_failed.include?(e["file_path"])
         end
         str = ""
@@ -67,7 +66,7 @@ class ParallelTestsReport::GenerateReport
   => #{ex["full_description"]}: #{ex["run_time"]} #{"Seconds"}
         TEXT
       end
-      generate_xml(time_exceeding_examples)
+      generate_xml(time_exceeding_examples, time_limit)
       exit 1
     else
       puts "Runtime check Passed."
@@ -80,18 +79,18 @@ class ParallelTestsReport::GenerateReport
     end
   end
 
-  def generate_xml array
+  def generate_xml array,time_limit
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
-      xml.testsuite("name" => "rspec", "tests" => @all_examples.length, "skipped" => 0, "failures" => array.length, "errors" => 0) {
+      xml.testsuite {
         array.each do |arr|
           classname = "#{arr["file_path"]}".sub(%r{\.[^/]*\Z}, "").gsub("/", ".").gsub(%r{\A\.+|\.+\Z}, "")
           xml.testcase("classname" => "#{classname}", "name" => "#{arr["full_description"]}", "file" => "#{arr["file_path"]}", "time" => "#{arr["run_time"]}") {
-            xml.failure "Execution time is exceeding the threshold of #{@time_limit} seconds"
+            xml.failure "Execution time is exceeding the threshold of #{time_limit} seconds"
           }
         end
       }
     end
-    File.open('tmp/test-results/rspec1.xml', 'w') do |file|
+    File.open('tmp/test-results/time_limit_exceeded.xml', 'w') do |file|
       file << builder.to_xml
     end
   end
