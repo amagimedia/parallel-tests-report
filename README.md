@@ -10,18 +10,22 @@ This gem will also verify the time taken for a test against configured threshold
 
 atestcase has exceeded the configured time limit
 
-# How it works
-- This gem uses a custom json formatter, parallel_tests gem should be configured to use this formatter using `--format` and `--out` options.
-- Once tests are executed a rake task is executed to parse the json and generate the report.
+## How it works
+- parallel_tests gem is configured to use a custom formatter provided by this gem using `--format` and `--out` options.
+- Once tests are executed a rake task provided by this gem can be executed to parse the json and generate the report.
 
-# Installation
-Include the gem in your Gemfile and bundle install:
- - `gem 'parallel_tests_report'
+## Installation
+Include the gem in your Gemfile
+
+`gem 'parallel_tests_report'`
+
+`$ bundle install`
 
 Add the following to the Rakefile before load_task(In Rails application):
- - `require 'parallel_tests_report'`
 
-# Usage
+`require 'parallel_tests_report'`
+
+## Usage
 - add `--format` and `--out` option to `.rspec` or `.rspec_parallel`
   - `--format ParallelTestsReport::JsonFormatter --out tmp/test-results/rspec.json`
 - execute the rake task after specs are executed 
@@ -29,4 +33,4 @@ Add the following to the Rakefile before load_task(In Rails application):
   - <TIME_LIMIT_IN_SECONDS> is the maximum time an example can take. Default is 10 seconds.
   - <OUTPUT_FILE> is the file specified in the --out option. Default is 'tmp/test-results/rspec.json'
 
-### This rake task can be configured to run after specs in a continuous integration setup, it also produces a junit xml file for time limit exceeding check.
+#### This rake task can be configured to run after specs are executed in a continuous integration setup, it also produces a junit xml file for time limit exceeding check.
