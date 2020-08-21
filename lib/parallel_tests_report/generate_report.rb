@@ -19,7 +19,7 @@ class ParallelTestsReport::GenerateReport
       slowest_examples += parallel_suite["profile"]["examples"]
       failed_examples += parallel_suite["examples"].select {|ex| ex["status"] == "failed" }
       time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= time_limit}
-      errors += parallel_suite["messages"][0] if parallel_suite["examples"].size == 0
+      errors << parallel_suite["messages"][0] if parallel_suite["examples"].size == 0
     end
 
     if slowest_examples.size > 0
@@ -61,7 +61,16 @@ class ParallelTestsReport::GenerateReport
       end
     end
 
-    if time_exceeding_examples.length > 0
+    if errors.size > 0
+      puts "\Errors:\n"
+      errors.each do |err|
+        puts <<-TEXT
+        #{err}
+        TEXT
+      end
+    end
+
+    if time_exceeding_examples.size > 0
       puts "\nExecution time is exceeding the threshold of #{@time_limit} seconds for following tests:"
       time_exceeding_examples.each do |ex|
         puts <<-TEXT
@@ -74,7 +83,7 @@ class ParallelTestsReport::GenerateReport
       puts "Runtime check Passed."
     end
 
-    if failed_examples.size > 0
+    if failed_examples.size > 0 || errors.size >0
       fail_message = "Tests Failed"
       puts "\e[31m#{fail_message}\e[0m"
       exit 1
