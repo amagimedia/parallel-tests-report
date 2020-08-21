@@ -9,6 +9,7 @@ class ParallelTestsReport::GenerateReport
     failed_examples = []
     time_exceeding_examples = []
     rerun_failed = []
+    errors = []
 
     return if File.zero?(output)
 
@@ -18,6 +19,7 @@ class ParallelTestsReport::GenerateReport
       slowest_examples += parallel_suite["profile"]["examples"]
       failed_examples += parallel_suite["examples"].select {|ex| ex["status"] == "failed" }
       time_exceeding_examples += parallel_suite["examples"].select {|ex| ex["run_time"] >= time_limit}
+      errors += parallel_suite["messages"][0] if parallel_suite["examples"].size == 0
     end
 
     if slowest_examples.size > 0
@@ -66,7 +68,7 @@ class ParallelTestsReport::GenerateReport
   => #{ex["full_description"]}: #{ex["run_time"]} #{"Seconds"}
         TEXT
       end
-      generate_xml(time_exceeding_examples, time_limit)
+      generate_xml(errors, time_exceeding_examples, time_limit)
       exit 1
     else
       puts "Runtime check Passed."
@@ -79,13 +81,18 @@ class ParallelTestsReport::GenerateReport
     end
   end
 
-  def generate_xml array,time_limit
+  def generate_xml errors,time_exceeding_examples,time_limit
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml.testsuite {
-        array.each do |arr|
+        time_exceeding_examples.each do |arr|
           classname = "#{arr["file_path"]}".sub(%r{\.[^/]*\Z}, "").gsub("/", ".").gsub(%r{\A\.+|\.+\Z}, "")
           xml.testcase("classname" => "#{classname}", "name" => "#{arr["full_description"]}", "file" => "#{arr["file_path"]}", "time" => "#{arr["run_time"]}") {
             xml.failure "Execution time is exceeding the threshold of #{time_limit} seconds"
+          }
+        end
+        errors.each do |arr|
+          xml.testcase("classname" => "", "name" => "An error occurred while loading", "file" => "", "time" => "") {
+            xml.failure arr
           }
         end
       }
