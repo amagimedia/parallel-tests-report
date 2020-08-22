@@ -1,14 +1,12 @@
 # parallel-tests-report
 
-Works with [parallel_tests](https://github.com/grosser/parallel_tests) gem to generate a consolidated report for the spec groups executed by paralle_tests.
+Works with [parallel_tests](https://github.com/grosser/parallel_tests) gem to generate a consolidated report for the spec groups executed by parallel_tests.
 
 The report generated will include:
 - List of top 20 slowest examples.
 - Rspec command to reproduce the failed example with the bisect option and seed value used.
 
 This gem will also verify the time taken for a test against configured threshold value and report if the time has exceeded.
-
-atestcase has exceeded the configured time limit
 
 ## How it works
 - parallel_tests gem is configured to use a custom formatter provided by this gem using `--format` and `--out` options.
