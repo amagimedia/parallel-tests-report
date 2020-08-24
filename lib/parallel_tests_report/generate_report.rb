@@ -100,7 +100,7 @@ class ParallelTestsReport::GenerateReport
           }
         end
         errors.each do |arr|
-          xml.testcase("classname" => "", "name" => "An error occurred while loading", "file" => "", "time" => "") {
+          xml.testcase("classname" => "some.path", "name" => "An error occurred while loading", "file" => "/some/path", "time" => "0.0") {
             xml.failure arr
           }
         end
