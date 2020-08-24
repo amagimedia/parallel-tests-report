@@ -90,7 +90,7 @@ class ParallelTestsReport::GenerateReport
     end
   end
 
-  def generate_xml errors,time_exceeding_examples,time_limit
+  def generate_xml(errors, time_exceeding_examples, time_limit)
     builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       xml.testsuite {
         time_exceeding_examples.each do |arr|
