@@ -1,3 +1,12 @@
+# With this JsonFormatter we are generating a file which contains a json for each and every parallel_test_suite. It contains all the passed, failed, pending and profiled examples with their full_description, file_path, run_time, seed value and parallel_test_proessor number.
+# We parse each line of this file, to generate a report to show slowest examples, failed examples, errors and runtime checks.
+
+# And example to show the structure of the file:
+# This is a single line containing details for one parallel_test_suite
+=begin
+{"messages":["Run options: exclude {:asrun=\u003etrue, :to_be_implemented=\u003etrue, :integration=\u003etrue}"],"seed":2121,"examples":[{"full_description":"An example", updated_at, id, media_id","status":"passed","file_path":"/path/to/the/example","line_number":01,"run_time":2.269736609,"parallel_test_proessor":1,"seed":2121},{"full_description":"Another Example","status":"passed","file_path":"path/to/another/exmple","line_number":20,"run_time":4.139183023,"parallel_test_proessor":1,"seed":2121}],"profile":{"examples":[{"full_description":"An example", updated_at, id, media_id","status":"passed","file_path":"/path/to/the/example","line_number":01,"run_time":2.269736609,"parallel_test_proessor":1,"seed":2121},{"full_description":"Another Example","status":"passed","file_path":"path/to/another/exmple","line_number":20,"run_time":4.139183023,"parallel_test_proessor":1,"seed":2121}]}}
+=end
+
 require 'parallel_tests_report'
 
 class ParallelTestsReport::JsonFormatter < RSpec::Core::Formatters::BaseFormatter
