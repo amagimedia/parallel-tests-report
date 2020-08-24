@@ -26,9 +26,6 @@ class ParallelTestsReport::GenerateReport
       slowest_examples = slowest_examples.sort_by do |ex|
         -ex["run_time"]
       end.first(20)
-    end
-
-    if slowest_examples.size > 0
       puts "Top #{slowest_examples.size} slowest examples\n"
       slowest_examples.each do |ex|
         puts <<-TEXT
@@ -81,12 +78,11 @@ class ParallelTestsReport::GenerateReport
   => #{ex["full_description"]}: #{ex["run_time"]} #{"Seconds"}
         TEXT
       end
-      exit 1
     else
       puts "Runtime check Passed."
     end
 
-    if failed_examples.size > 0 || errors.size > 0
+    if failed_examples.size > 0 || errors.size > 0 || time_exceeding_examples.size > 0
       fail_message = "Tests Failed"
       puts "\e[31m#{fail_message}\e[0m"
       exit 1
@@ -106,7 +102,7 @@ class ParallelTestsReport::GenerateReport
           file_path = arr[/(?<=An error occurred while loading ).*/]
           classname = "#{file_path}".sub(%r{\.[^/]*\Z}, "").gsub("/", ".").gsub(%r{\A\.+|\.+\Z}, "")
           xml.testcase("classname" => "#{classname}", "name" => "An error occurred while loading", "file" => "#{file_path}", "time" => "0.0") {
-            xml.failure arr
+            xml.failure arr.gsub(/\e\[([;\d]+)?m/, "")
           }
         end
       }
