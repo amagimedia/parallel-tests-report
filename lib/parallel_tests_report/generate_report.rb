@@ -70,6 +70,10 @@ class ParallelTestsReport::GenerateReport
       end
     end
 
+    if time_exceeding_examples.size > 0 || errors.size > 0
+      generate_xml(errors, time_exceeding_examples, time_limit)
+    end
+
     if time_exceeding_examples.size > 0
       puts "\nExecution time is exceeding the threshold of #{@time_limit} seconds for following tests:"
       time_exceeding_examples.each do |ex|
@@ -77,13 +81,12 @@ class ParallelTestsReport::GenerateReport
   => #{ex["full_description"]}: #{ex["run_time"]} #{"Seconds"}
         TEXT
       end
-      generate_xml(errors, time_exceeding_examples, time_limit)
       exit 1
     else
       puts "Runtime check Passed."
     end
 
-    if failed_examples.size > 0 || errors.size >0
+    if failed_examples.size > 0 || errors.size > 0
       fail_message = "Tests Failed"
       puts "\e[31m#{fail_message}\e[0m"
       exit 1
@@ -100,7 +103,7 @@ class ParallelTestsReport::GenerateReport
           }
         end
         errors.each do |arr|
-          file_path = arr[/(?<=loading ).*/]
+          file_path = arr[/(?<=An error occurred while loading ).*/]
           classname = "#{file_path}".sub(%r{\.[^/]*\Z}, "").gsub("/", ".").gsub(%r{\A\.+|\.+\Z}, "")
           xml.testcase("classname" => "#{classname}", "name" => "An error occurred while loading #{file_path}", "file" => "#{file_path}", "time" => "0.0") {
             xml.failure arr
