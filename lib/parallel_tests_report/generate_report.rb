@@ -105,7 +105,7 @@ class ParallelTestsReport::GenerateReport
         errors.each do |arr|
           file_path = arr[/(?<=An error occurred while loading ).*/]
           classname = "#{file_path}".sub(%r{\.[^/]*\Z}, "").gsub("/", ".").gsub(%r{\A\.+|\.+\Z}, "")
-          xml.testcase("classname" => "#{classname}", "name" => "An error occurred while loading #{file_path}", "file" => "#{file_path}", "time" => "0.0") {
+          xml.testcase("classname" => "#{classname}", "name" => "An error occurred while loading", "file" => "#{file_path}", "time" => "0.0") {
             xml.failure arr
           }
         end
